@@ -1,0 +1,7 @@
+To update DbContext and Models, select menu Tools -> NuGet Package Manager -> Package Manager Console and run the following command:
+
+Scaffold-DbContext -Connection "Data Source=RAFAL_LENOVO;Initial Catalog=MemeMakerDB;Integrated Security=True" -Provider Microsoft.EntityFrameworkCore.SqlServer -OutputDir "..\Domain\Entities" -ContextDir "Database" -UseDatabaseNames -Force -Project "Infrastructure" -StartupProject "Infrastructure" -Namespace "Domain.Entities" -ContextNamespace "Infrastructure.Database" -NoPluralize
+
+Of course if you are using different ConnectionString replace string after [-Connection] tag.
+
+This command will recreate models in Domain.Entities and DbContext in Infrastructure.Database. When Build succed you need to move ConnectionString out of the source code and use parameter to config instead.
