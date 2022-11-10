@@ -15,7 +15,7 @@ namespace WebAPI.Controllers
             _templateManager = templateManager;
         }
 
-        [HttpGet]
+        [HttpGet("all")]
         public IActionResult GetAllTemplates()
         {
             var templates = _templateManager.GetAllTemplates();
@@ -41,7 +41,7 @@ namespace WebAPI.Controllers
         }
 
         [HttpGet("contains")]
-        public IActionResult GetPopularTemplates(string phrase)
+        public IActionResult GetTemplatesWithName(string phrase)
         {
             var templates = _templateManager.GetTemplatesContainingPhrase(phrase);
             return Ok(templates);
