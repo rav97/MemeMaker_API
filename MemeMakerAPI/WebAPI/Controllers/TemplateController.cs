@@ -15,13 +15,6 @@ namespace WebAPI.Controllers
             _templateManager = templateManager;
         }
 
-        [HttpGet("all")]
-        public IActionResult GetAllTemplates()
-        {
-            var templates = _templateManager.GetAllTemplates();
-            return Ok(templates);
-        }
-
         [HttpGet("{id}")]
         public IActionResult GetTemplate(int id)
         {

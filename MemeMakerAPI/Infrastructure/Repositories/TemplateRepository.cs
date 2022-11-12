@@ -20,6 +20,7 @@ namespace Infrastructure.Repositories
         {
             var result = _context.Template
                                  .Where(t => idList.Contains(t.id))
+                                 .OrderByDescending(x => x.TemplateUsage.Count)
                                  .ToList();
 
             return result;

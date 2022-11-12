@@ -24,9 +24,14 @@ namespace WebAPI.Controllers
         }
 
         [HttpPost]
-        public IActionResult AddMeme(string memeName, IFormFile file)
+        public IActionResult AddMeme(int templateId, string memeName, IFormFile image)
         {
-            return Ok();
+            var result = _memeManager.AddMeme(templateId, image);
+
+            if (result)
+                return Ok(result);
+            else
+                return BadRequest(result);
         }
 
         [HttpGet("random")]
