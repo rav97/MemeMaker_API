@@ -50,6 +50,14 @@ namespace WebAPI.Controllers
             return Ok(result);
         }
 
+        [HttpGet("recent-images")]
+        public IActionResult GetMemesImages(int skip, int take)
+        {
+            var result = _memeManager.GetRecentMemesData(skip, take);
+
+            return Ok(result);
+        }
+
         [HttpGet("template/{id}")]
         public IActionResult GetMemesOfTemplate(int id)
         {

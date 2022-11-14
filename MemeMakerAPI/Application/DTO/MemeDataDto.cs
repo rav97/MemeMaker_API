@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Application.DTO
 {
-    public class MemeDataDto
+    public class MemeDataDto : MemeDto
     {
         public Byte[] ImageData { get; set; }
     }

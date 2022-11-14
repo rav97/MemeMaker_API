@@ -14,6 +14,7 @@ namespace Application.Managers.Interfaces
         MemeDataDto GetRandomMeme();
         IEnumerable<MemeDto> GetAllMemes();
         IEnumerable<MemeDto> GetRecentMemes(int skip, int take);
+        IEnumerable<MemeDataDto> GetRecentMemesData(int skip, int take);
         IEnumerable<MemeDto> GetMemesFromTemplate(int templateId);
     }
 }

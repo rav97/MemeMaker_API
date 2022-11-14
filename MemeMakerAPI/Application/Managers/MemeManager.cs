@@ -105,5 +105,31 @@ namespace Application.Managers
 
             return mapped;
         }
+
+        public IEnumerable<MemeDataDto> GetRecentMemesData(int skip, int take)
+        {
+            var memes = _memeRepository.GetMemes(skip, take);
+            var mapped = _mapper.Map<IEnumerable<MemeDataDto>>(memes);
+
+            foreach(var m in mapped)
+                m.ImageData = GetFileData(m.Path);
+
+            return mapped;
+        }
+
+        #region [ PRIVATE ]
+
+        private byte[] GetFileData(string relativePath)
+        {
+            string filePath = Path.Combine(_rootDir, relativePath);
+
+            if (!File.Exists(filePath))
+                return null;
+
+            return File.ReadAllBytes(filePath);
+        }
+
+        #endregion
+
     }
 }
