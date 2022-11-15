@@ -1,11 +1,13 @@
 ﻿using Application.DTO;
 using Application.Managers.Interfaces;
 using Microsoft.AspNetCore.Mvc;
+using WebAPI.Attributes;
 
 namespace WebAPI.Controllers
 {
     [Route("[controller]")]
     [ApiController]
+    [ApiKeyAuthorisation]
     public class TemplateController : ControllerBase
     {
         private readonly ITemplateManager _templateManager;

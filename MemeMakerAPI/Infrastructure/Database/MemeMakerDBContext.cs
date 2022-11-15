@@ -17,21 +17,36 @@ namespace Infrastructure.Database
         {
         }
 
+        public virtual DbSet<ApiKey> ApiKey { get; set; } = null!;
         public virtual DbSet<GeneratedMeme> GeneratedMeme { get; set; } = null!;
         public virtual DbSet<Template> Template { get; set; } = null!;
         public virtual DbSet<TemplateUsage> TemplateUsage { get; set; } = null!;
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
-            if (!optionsBuilder.IsConfigured)
-            {
-#warning To protect potentially sensitive information in your connection string, you should move it out of source code. You can avoid scaffolding the connection string by using the Name= syntax to read it from configuration - see https://go.microsoft.com/fwlink/?linkid=2131148. For more guidance on storing connection strings, see http://go.microsoft.com/fwlink/?LinkId=723263.
-                optionsBuilder.UseSqlServer("Data Source=RAFAL_LENOVO;Initial Catalog=MemeMakerDB;Integrated Security=True");
-            }
         }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
+            modelBuilder.Entity<ApiKey>(entity =>
+            {
+                entity.Property(e => e.active)
+                    .IsRequired()
+                    .HasDefaultValueSql("((1))");
+
+                entity.Property(e => e.api_key)
+                    .HasMaxLength(100)
+                    .IsUnicode(false);
+
+                entity.Property(e => e.create_date)
+                    .HasColumnType("datetime")
+                    .HasDefaultValueSql("(getdate())");
+
+                entity.Property(e => e.expire_date)
+                    .HasColumnType("datetime")
+                    .HasDefaultValueSql("(dateadd(year,(1),getdate()))");
+            });
+
             modelBuilder.Entity<GeneratedMeme>(entity =>
             {
                 entity.Property(e => e.create_date).HasColumnType("datetime");

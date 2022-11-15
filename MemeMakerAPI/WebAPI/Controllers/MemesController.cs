@@ -1,11 +1,16 @@
 ﻿using Application.DTO;
 using Application.Managers.Interfaces;
 using Microsoft.AspNetCore.Mvc;
+using WebAPI.Attributes;
 
 namespace WebAPI.Controllers
 {
+    /// <summary>
+    /// Controller for operation relates with Generated Memes
+    /// </summary>
     [Route("[controller]")]
     [ApiController]
+    [ApiKeyAuthorisation]
     public class MemesController : ControllerBase
     {
         private readonly IMemeManager _memeManager;
@@ -18,9 +23,17 @@ namespace WebAPI.Controllers
         [HttpGet]
         public IActionResult Get()
         {
-            var result = _memeManager.GetAllMemes();
+            try
+            {
+                var result = _memeManager.GetAllMemes();
 
-            return Ok(result);
+                return Ok(result);
+            }
+            catch(Exception e)
+            {
+                Console.WriteLine(e);
+                return StatusCode(500);
+            }
         }
 
         [HttpPost]
