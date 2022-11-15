@@ -8,6 +8,8 @@ using Microsoft.AspNetCore.Mvc.ApplicationModels;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
+using Microsoft.OpenApi.Models;
+using WebAPI.Swagger;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -22,6 +24,8 @@ builder.Services.AddSwaggerGen(c =>
     c.SwaggerDoc("v1", new Microsoft.OpenApi.Models.OpenApiInfo { Title = "Meme Maker API", Version = "v0.9.0" });
     var filePath = Path.Combine(System.AppContext.BaseDirectory, "WebAPI.xml");
     c.IncludeXmlComments(filePath);
+
+    c.OperationFilter<AddApiKeyHeader>();
 }); 
 
 #region [ DATABASE ]
