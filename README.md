@@ -38,6 +38,7 @@ An ASP.NET Core Web API created for [WPF Meme Maker](https://github.com/rav97/WP
 ![Preview2](https://github.com/rav97/ResourcesRepository/blob/main/MemeMakerAPI/GeneralApiPreview2.png?raw=true)
 
 ## TODO
+- Logging
 - UnitTesting
 - IntegrationTesting
 
