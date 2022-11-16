@@ -31,11 +31,11 @@ namespace WebAPI.Controllers
         [ProducesResponseType(typeof(IEnumerable<MemeDto>), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(bool), StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(typeof(bool), StatusCodes.Status500InternalServerError)]
-        public IActionResult Get()
+        public async Task<IActionResult> Get()
         {
             try
             {
-                var result = _memeManager.GetAllMemes();
+                var result = await _memeManager.GetAllMemesAsync();
 
                 return Ok(result);
             }
@@ -62,11 +62,11 @@ namespace WebAPI.Controllers
         [ProducesResponseType(typeof(bool), StatusCodes.Status400BadRequest)]
         [ProducesResponseType(typeof(bool), StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(typeof(bool), StatusCodes.Status500InternalServerError)]
-        public IActionResult AddMeme(int templateId, string memeName, IFormFile image)
+        public async Task<IActionResult> AddMeme(int templateId, string memeName, IFormFile image)
         {
             try
             {
-                var result = _memeManager.AddMeme(templateId, image);
+                var result = await _memeManager.AddMemeAsync(templateId, image);
 
                 if (result)
                     return Ok(result);
@@ -91,11 +91,11 @@ namespace WebAPI.Controllers
         [ProducesResponseType(typeof(MemeDataDto), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(bool), StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(typeof(bool), StatusCodes.Status500InternalServerError)]
-        public IActionResult GetRandom()
+        public async Task<IActionResult> GetRandom()
         {
             try
             {
-                var result = _memeManager.GetRandomMeme();
+                var result = await _memeManager.GetRandomMemeAsync();
 
                 return Ok(result);
             }
@@ -119,11 +119,11 @@ namespace WebAPI.Controllers
         [ProducesResponseType(typeof(IEnumerable<MemeDto>), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(bool), StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(typeof(bool), StatusCodes.Status500InternalServerError)]
-        public IActionResult GetMemes(int skip, int take)
+        public async Task<IActionResult> GetMemes(int skip, int take)
         {
             try
             {
-                var result = _memeManager.GetRecentMemes(skip, take);
+                var result = await _memeManager.GetRecentMemesAsync(skip, take);
 
                 return Ok(result);
             }
@@ -147,11 +147,11 @@ namespace WebAPI.Controllers
         [ProducesResponseType(typeof(IEnumerable<MemeDataDto>), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(bool), StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(typeof(bool), StatusCodes.Status500InternalServerError)]
-        public IActionResult GetMemesImages(int skip, int take)
+        public async Task<IActionResult> GetMemesImages(int skip, int take)
         {
             try
             {
-                var result = _memeManager.GetRecentMemesData(skip, take);
+                var result = await _memeManager.GetRecentMemesDataAsync(skip, take);
 
                 return Ok(result);
             }
@@ -174,11 +174,11 @@ namespace WebAPI.Controllers
         [ProducesResponseType(typeof(IEnumerable<MemeDto>), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(bool), StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(typeof(bool), StatusCodes.Status500InternalServerError)]
-        public IActionResult GetMemesOfTemplate(int id)
+        public async Task<IActionResult> GetMemesOfTemplate(int id)
         {
             try
             {
-                var result = _memeManager.GetMemesFromTemplate(id);
+                var result = await _memeManager.GetMemesFromTemplateAsync(id);
 
                 return Ok(result);
             }

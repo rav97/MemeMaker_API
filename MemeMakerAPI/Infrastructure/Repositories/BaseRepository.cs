@@ -1,5 +1,6 @@
 ﻿using Domain.Interfaces.Repositories;
 using Infrastructure.Database;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -16,6 +17,8 @@ namespace Infrastructure.Repositories
         {
             this._context = context;
         }
+
+        #region [ SYNCHRONOUS ]
 
         public List<T> GetAll()
         {
@@ -45,5 +48,46 @@ namespace Infrastructure.Repositories
             _context.Set<T>().Remove(item);
             return _context.SaveChanges() > 0;
         }
+
+        #endregion
+
+        #region [ ASYNCHRONOUS ]
+
+        public async Task<List<T>> GetAllAsync()
+        {
+            return await _context.Set<T>().ToListAsync();
+        }
+
+        public async Task<T> GetByKeyIdAsync(int id)
+        {
+            return await _context.Set<T>().FindAsync(id);
+        }
+
+        public async Task<bool> InsertAsync(T data)
+        {
+            _context.Set<T>().Add(data);
+            var result = await _context.SaveChangesAsync();
+
+            return result > 0;
+        }
+
+        public async Task<bool> UpdateAsync(T updatedData)
+        {
+            _context.Set<T>().Update(updatedData);
+            var result = await _context.SaveChangesAsync();
+
+            return result >= 0;
+        }
+
+        public async Task<bool> DeleteAsync(int id)
+        {
+            var item = await GetByKeyIdAsync(id);
+            _context.Set<T>().Remove(item);
+            var result = await _context.SaveChangesAsync();
+
+            return result > 0;
+        }
+
+        #endregion
     }
 }

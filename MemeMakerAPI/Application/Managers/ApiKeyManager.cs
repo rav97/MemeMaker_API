@@ -18,11 +18,57 @@ namespace Application.Managers
             _apiKeyRepository = repository;
         }
 
+        #region [ SYNCHRONOUS ]
+
         public bool CheckApiKey(string key)
         {
             var baseKey = _apiKeyRepository.FindKey(key);
 
-            if(baseKey != null)
+            return CheckKey(baseKey, key);
+        }
+
+        public string GenerateNewApiKey()
+        {
+            var now = DateTime.Now;
+            var key = GenerateKey(now);
+
+            var result = _apiKeyRepository.InsertKey(now, key);
+
+            if (result)
+                return key;
+            else
+                throw new Exception("Error during generation or saving api key");
+        }
+
+        #endregion
+
+        #region [ ASYNCHRONOUS ]
+
+        public async Task<bool> CheckApiKeyAsync(string key)
+        {
+            var baseKey = await _apiKeyRepository.FindKeyAsync(key);
+
+            return CheckKey(baseKey, key);
+        }
+
+        public async Task<string> GenerateNewApiKeyAsync()
+        {
+            var now = DateTime.Now;
+            var key = GenerateKey(now);
+
+            var result = await _apiKeyRepository.InsertKeyAsync(now, key);
+
+            if (result)
+                return key;
+            else
+                throw new Exception("Error during generation or saving api key");
+        }
+
+        #endregion
+
+        private bool CheckKey(ApiKey baseKey, string key)
+        {
+            if (baseKey != null)
             {
                 if (baseKey.expire_date < DateTime.Now || baseKey.active == false)
                     return false;
@@ -38,16 +84,14 @@ namespace Application.Managers
 
                 if ((baseKey.create_date - dateFromKey).Seconds == 0)
                     return true;
-                
+
             }
 
             return false;
         }
 
-        public string GenerateNewApiKey()
+        private string GenerateKey(DateTime now)
         {
-            var now = DateTime.Now;
-
             #region [BASE 64 ENCODING]
 
             var bytes = Encoding.UTF8.GetBytes(now.ToString("yyyy-MM-dd HH:mm:ss"));
@@ -55,20 +99,7 @@ namespace Application.Managers
 
             #endregion
 
-            var apiKey = new ApiKey
-            {
-                create_date = now,
-                expire_date = now.AddYears(1),
-                active = true,
-                api_key = key
-            };
-
-            var result = _apiKeyRepository.Insert(apiKey);
-
-            if (result)
-                return key;
-            else
-                throw new Exception("Error during generation or saving api key");
+            return key;
         }
     }
 }

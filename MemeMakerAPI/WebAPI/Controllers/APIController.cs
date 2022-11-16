@@ -40,11 +40,11 @@ namespace WebAPI.Controllers
         [HttpGet("ApiKey")]
         [ProducesResponseType(typeof(string), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(bool), StatusCodes.Status500InternalServerError)]
-        public IActionResult GetApiKey()
+        public async Task<IActionResult> GetApiKey()
         {
             try
             {
-                var key = _apiKeyManager.GenerateNewApiKey();
+                var key = await _apiKeyManager.GenerateNewApiKeyAsync();
                 return Ok(key);
             }
             catch(Exception e)
@@ -66,11 +66,11 @@ namespace WebAPI.Controllers
         [ProducesResponseType(typeof(bool), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(string), StatusCodes.Status400BadRequest)]
         [ProducesResponseType(typeof(bool), StatusCodes.Status500InternalServerError)]
-        public IActionResult CheckApiKey(string key)
+        public async Task<IActionResult> CheckApiKey(string key)
         {
             try
             {
-                var result = _apiKeyManager.CheckApiKey(key);
+                var result = await _apiKeyManager.CheckApiKeyAsync(key);
                 if (result)
                     return Ok(true);
                 else

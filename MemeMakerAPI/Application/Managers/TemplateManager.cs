@@ -38,7 +38,7 @@ namespace Application.Managers
                 throw new ConfigurationErrorsException("Reading from TemplateRootPath returned null");
         }
 
-        #region [ PUBLIC ]
+        #region [ SYNCHRONOUS ]
 
         public IEnumerable<TemplateDto> GetAllTemplates()
         {
@@ -111,6 +111,79 @@ namespace Application.Managers
 
         #endregion
 
+        #region [ ASYNCHRONOUS ]
+
+        public async Task<IEnumerable<TemplateDto>> GetAllTemplatesAsync()
+        {
+            var templates = await _templateRepository.GetAllAsync();
+            var mapped = _mapper.Map<IEnumerable<TemplateDto>>(templates);
+
+            return mapped;
+        }
+
+        public async Task<IEnumerable<TemplateDto>> GetPopularTemplatesAsync(int limit)
+        {
+            var idList = await _templateUsageRepository.GetPopularTemplateIDsAsync(limit);
+            var templates = await _templateRepository.GetTemplatesByIdAsync(idList);
+            var mapped = _mapper.Map<IEnumerable<TemplateDto>>(templates);
+
+            return mapped;
+        }
+
+        public async Task<IEnumerable<TemplateDto>> GetTemplatesContainingPhraseAsync(string phrase)
+        {
+            var templates = await _templateRepository.GetTemplatesWithPhraseAsync(phrase);
+            var mapped = _mapper.Map<IEnumerable<TemplateDto>>(templates);
+
+            return mapped;
+        }
+
+        public async Task<TemplateDataDto> GetTemplateByIdAsync(int id)
+        {
+            var template = await _templateRepository.GetByKeyIdAsync(id);
+            var mapped = _mapper.Map<TemplateDataDto>(template);
+            mapped.ImageData = await GetFileDataAsync(template.path);
+
+            if (mapped.ImageData == null)
+                return null;
+
+            return mapped;
+        }
+
+        public async Task<bool> AddTemplateAsync(string templateName, IFormFile file)
+        {
+            if (file.Length > 0)
+            {
+                #region [ SaveFileOnDisk ]
+
+                string filePath = Path.Combine(_rootDir, file.FileName);
+
+                int i = 1;
+                while (File.Exists(filePath))
+                    filePath = Path.Combine(_rootDir, $"{Path.GetFileNameWithoutExtension(file.FileName)}({i}).{Path.GetExtension(file.FileName)}");
+
+                using (Stream filestream = new FileStream(filePath, FileMode.Create))
+                    await file.CopyToAsync(filestream);
+
+                #endregion
+
+                #region [ AddToDatabase ]
+
+                return await _templateRepository.InsertTemplateAsync(templateName, Path.GetFileName(filePath));
+
+                #endregion
+            }
+
+            return false;
+        }
+
+        public async Task<bool> SaveTemplateUsageAsync(int templateId)
+        {
+            return await _templateUsageRepository.SaveTemplateUsageAsync(templateId);
+        }
+
+        #endregion
+
         #region [ PRIVATE ]
 
         private byte[] GetFileData(string relativePath)
@@ -121,6 +194,16 @@ namespace Application.Managers
                 return null;
 
             return File.ReadAllBytes(filePath);
+        }
+
+        private async Task<byte[]> GetFileDataAsync(string relativePath)
+        {
+            string filePath = Path.Combine(_rootDir, relativePath);
+
+            if (!File.Exists(filePath))
+                return null;
+
+            return await File.ReadAllBytesAsync(filePath);
         }
 
         #endregion

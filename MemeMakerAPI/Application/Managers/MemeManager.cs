@@ -33,7 +33,14 @@ namespace Application.Managers
 
             if (_rootDir == null)
                 throw new ConfigurationErrorsException("Reading from TemplateRootPath returned null");
+            else
+            {
+                if (!Directory.Exists(_rootDir))
+                    Directory.CreateDirectory(_rootDir);
+            }
         }
+
+        #region [ SYNCHRONOUS ]
 
         public bool AddMeme(int templateId, IFormFile file)
         {
@@ -117,6 +124,99 @@ namespace Application.Managers
             return mapped;
         }
 
+        #endregion
+
+        #region [ ASYNCHRONOUS ]
+
+        public async Task<bool> AddMemeAsync(int templateId, IFormFile file)
+        {
+            if (file.Length > 0)
+            {
+                #region [ SaveFileOnDisk ]
+
+                string filePath = Path.Combine(_rootDir, file.FileName);
+
+                int i = 1;
+                while (File.Exists(filePath))
+                    filePath = Path.Combine(_rootDir, $"{Path.GetFileNameWithoutExtension(file.FileName)}({i}).{Path.GetExtension(file.FileName)}");
+
+                using (Stream filestream = new FileStream(filePath, FileMode.Create))
+                    await file.CopyToAsync(filestream);
+
+                #endregion
+
+                #region [ AddToDatabase ]
+
+                return await _memeRepository.InsertMemeAsync(templateId, Path.GetFileName(filePath));
+
+                #endregion
+            }
+
+            return false;
+        }
+
+        public async Task<IEnumerable<MemeDto>> GetAllMemesAsync()
+        {
+            var memes = await _memeRepository.GetAllAsync();
+            var mapped = _mapper.Map<IEnumerable<MemeDto>>(memes);
+
+            return mapped;
+        }
+
+        public async Task<IEnumerable<MemeDto>> GetMemesFromTemplateAsync(int templateId)
+        {
+            var memes = await _memeRepository.GetMemeOfTemplateAsync(templateId);
+            var mapped = _mapper.Map<IEnumerable<MemeDto>>(memes);
+
+            return mapped;
+        }
+
+        public async Task<MemeDataDto> GetRandomMemeAsync()
+        {
+            var count = await _memeRepository.GetMemeCountAsync();
+
+            if (count > 0)
+            {
+                var skip = _rand.Next(count);
+                MemeDto meme = null;
+
+                while (meme == null)
+                {
+                    var memeList = await GetRecentMemesAsync(skip, 1);
+                    meme = memeList.FirstOrDefault();
+                }
+
+                var result = await _memeRepository.GetByKeyIdAsync(meme.Id);
+                var mapped = _mapper.Map<MemeDataDto>(result);
+
+                return mapped;
+            }
+            return null;
+        }
+
+        public async Task<IEnumerable<MemeDto>> GetRecentMemesAsync(int skip, int take)
+        {
+            var memes = await _memeRepository.GetMemesAsync(skip, take);
+            var mapped = _mapper.Map<IEnumerable<MemeDto>>(memes);
+
+            return mapped;
+        }
+
+        public async Task<IEnumerable<MemeDataDto>> GetRecentMemesDataAsync(int skip, int take)
+        {
+            var memes = await _memeRepository.GetMemesAsync(skip, take);
+            var mapped = _mapper.Map<IEnumerable<MemeDataDto>>(memes);
+
+            await Parallel.ForEachAsync(mapped, new ParallelOptions { MaxDegreeOfParallelism = 2 }, async (m, token) => 
+            { 
+                m.ImageData = await GetFileDataAsync(m.Path);
+            });
+
+            return mapped;
+        }
+
+        #endregion
+
         #region [ PRIVATE ]
 
         private byte[] GetFileData(string relativePath)
@@ -127,6 +227,16 @@ namespace Application.Managers
                 return null;
 
             return File.ReadAllBytes(filePath);
+        }
+
+        private async Task<byte[]> GetFileDataAsync(string relativePath)
+        {
+            string filePath = Path.Combine(_rootDir, relativePath);
+
+            if (!File.Exists(filePath))
+                return null;
+
+            return await File.ReadAllBytesAsync(filePath);
         }
 
         #endregion

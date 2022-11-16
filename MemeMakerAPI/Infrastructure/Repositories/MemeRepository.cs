@@ -1,6 +1,7 @@
 ﻿using Domain.Entities;
 using Domain.Interfaces.Repositories;
 using Infrastructure.Database;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -15,6 +16,8 @@ namespace Infrastructure.Repositories
         {
 
         }
+
+        #region [ SYNCHRONOUS ]
 
         public int GetMemeCount()
         {
@@ -52,5 +55,48 @@ namespace Infrastructure.Repositories
 
             return Insert(meme);
         }
+
+        #endregion
+
+        #region [ ASYNCHRONOUS ]
+
+        public async Task<int> GetMemeCountAsync()
+        {
+            return await _context.GeneratedMeme.CountAsync();
+        }
+
+        public async Task<IEnumerable<GeneratedMeme>> GetMemeOfTemplateAsync(int id)
+        {
+            var result = await _context.GeneratedMeme
+                                       .Where(x => x.template_id == id)
+                                       .ToListAsync();
+
+            return result;
+        }
+
+        public async Task<IEnumerable<GeneratedMeme>> GetMemesAsync(int skip, int take)
+        {
+            var result = await _context.GeneratedMeme
+                                       .OrderByDescending(m => m.create_date)
+                                       .Skip(skip)
+                                       .Take(take)
+                                       .ToListAsync();
+
+            return result;
+        }
+
+        public async Task<bool> InsertMemeAsync(int templateId, string relativePath)
+        {
+            var meme = new GeneratedMeme
+            {
+                create_date = DateTime.Now,
+                path = relativePath,
+                template_id = templateId
+            };
+
+            return await InsertAsync(meme);
+        }
+
+        #endregion
     }
 }

@@ -31,11 +31,11 @@ namespace WebAPI.Controllers
         [ProducesResponseType(typeof(bool), StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(typeof(bool), StatusCodes.Status404NotFound)]
         [ProducesResponseType(typeof(bool), StatusCodes.Status500InternalServerError)]
-        public IActionResult GetTemplate(int id)
+        public async Task<IActionResult> GetTemplate(int id)
         {
             try
             {
-                var template = _templateManager.GetTemplateById(id);
+                var template = await _templateManager.GetTemplateByIdAsync(id);
 
                 if (template != null)
                     return Ok(template);
@@ -61,11 +61,11 @@ namespace WebAPI.Controllers
         [ProducesResponseType(typeof(IEnumerable<TemplateDto>), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(bool), StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(typeof(bool), StatusCodes.Status500InternalServerError)]
-        public IActionResult GetPopularTemplates(int limit)
+        public async Task<IActionResult> GetPopularTemplates(int limit)
         {
             try
             {
-                var templates = _templateManager.GetPopularTemplates(limit);
+                var templates = await _templateManager.GetPopularTemplatesAsync(limit);
                 return Ok(templates);
             }
             catch (Exception e)
@@ -87,11 +87,11 @@ namespace WebAPI.Controllers
         [ProducesResponseType(typeof(IEnumerable<TemplateDto>), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(bool), StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(typeof(bool), StatusCodes.Status500InternalServerError)]
-        public IActionResult GetTemplatesWithName(string phrase)
+        public async Task<IActionResult> GetTemplatesWithName(string phrase)
         {
             try
             {
-                var templates = _templateManager.GetTemplatesContainingPhrase(phrase);
+                var templates = await _templateManager.GetTemplatesContainingPhraseAsync(phrase);
                 return Ok(templates);
             }
             catch (Exception e)
@@ -117,14 +117,14 @@ namespace WebAPI.Controllers
         [ProducesResponseType(typeof(bool), StatusCodes.Status400BadRequest)]
         [ProducesResponseType(typeof(bool), StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(typeof(bool), StatusCodes.Status500InternalServerError)]
-        public IActionResult AddTemplate(string templateName, IFormFile image)
+        public async Task<IActionResult> AddTemplate(string templateName, IFormFile image)
         {
             try
             {
                 if (image == null)
                     throw new ArgumentNullException();
 
-                var result = _templateManager.AddTemplate(templateName, image);
+                var result = await _templateManager.AddTemplateAsync(templateName, image);
 
                 if (result)
                     return Ok(true);
@@ -150,11 +150,11 @@ namespace WebAPI.Controllers
         [ProducesResponseType(typeof(bool), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(bool), StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(typeof(bool), StatusCodes.Status500InternalServerError)]
-        public IActionResult SaveMemeUsage(int templateId)
+        public async Task<IActionResult> SaveMemeUsage(int templateId)
         {
             try
             {
-                var result = _templateManager.SaveTemplateUsage(templateId);
+                var result = await _templateManager.SaveTemplateUsageAsync(templateId);
 
                 //This functionality is not necessary to succed every time
                 return Ok(true);
