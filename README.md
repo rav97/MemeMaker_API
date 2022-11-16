@@ -1,4 +1,4 @@
-# MemeMaker_API
+# MemeMaker_API (async)
 
 An ASP.NET Core Web API created for [WPF Meme Maker](https://github.com/rav97/WPF_MemeMaker/tree/MemeMakerOnline) to manage memes and templates from remote apps.
 
