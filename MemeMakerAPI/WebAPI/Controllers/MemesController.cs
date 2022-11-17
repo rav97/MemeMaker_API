@@ -1,6 +1,7 @@
 ﻿using Application.DTO;
 using Application.Managers.Interfaces;
 using Microsoft.AspNetCore.Mvc;
+using Serilog;
 using WebAPI.Attributes;
 
 namespace WebAPI.Controllers
@@ -41,7 +42,7 @@ namespace WebAPI.Controllers
             }
             catch(Exception e)
             {
-                Console.WriteLine(e.Message);
+                Log.Error(e, $"Exception in {nameof(Get)}()");
                 return StatusCode(500, false);
             }
         }
@@ -62,7 +63,7 @@ namespace WebAPI.Controllers
         [ProducesResponseType(typeof(bool), StatusCodes.Status400BadRequest)]
         [ProducesResponseType(typeof(bool), StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(typeof(bool), StatusCodes.Status500InternalServerError)]
-        public async Task<IActionResult> AddMeme(int templateId, string memeName, IFormFile image)
+        public async Task<IActionResult> AddMeme(int templateId, [SqlInjectionFilter]string memeName, IFormFile image)
         {
             try
             {
@@ -75,7 +76,7 @@ namespace WebAPI.Controllers
             }
             catch(Exception e)
             {
-                Console.WriteLine(e.Message);
+                Log.Error(e, $"Exception in {nameof(AddMeme)}() templateId = {templateId}, memeName = {memeName}");
                 return StatusCode(500, false);
             }
         }
@@ -101,7 +102,7 @@ namespace WebAPI.Controllers
             }
             catch (Exception e)
             {
-                Console.WriteLine(e.Message);
+                Log.Error(e, $"Exception in {nameof(GetRandom)}()");
                 return StatusCode(500, false);
             }
         }
@@ -129,7 +130,7 @@ namespace WebAPI.Controllers
             }
             catch (Exception e)
             {
-                Console.WriteLine(e.Message);
+                Log.Error(e, $"Exception in {nameof(GetMemes)}() skip = {skip}, take = {take}");
                 return StatusCode(500, false);
             }
         }
@@ -157,7 +158,7 @@ namespace WebAPI.Controllers
             }
             catch (Exception e)
             {
-                Console.WriteLine(e.Message);
+                Log.Error(e, $"Exception in {nameof(GetMemesImages)}() skip = {skip}, take = {take}");
                 return StatusCode(500, false);
             }
         }
@@ -184,7 +185,7 @@ namespace WebAPI.Controllers
             }
             catch (Exception e)
             {
-                Console.WriteLine(e.Message);
+                Log.Error(e, $"Exception in {nameof(GetMemesOfTemplate)}() id = {id}");
                 return StatusCode(500, false);
             }
         }

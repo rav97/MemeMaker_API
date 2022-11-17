@@ -10,8 +10,21 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.OpenApi.Models;
 using WebAPI.Swagger;
+using Serilog;
+
 
 var builder = WebApplication.CreateBuilder(args);
+
+// Setting up Logging Service
+
+Log.Logger = new LoggerConfiguration()
+                    .MinimumLevel.Debug()
+                    .WriteTo.Async(a => a.Console(restrictedToMinimumLevel: Serilog.Events.LogEventLevel.Debug, outputTemplate: "[{Timestamp:HH:mm:ss} {Level:u3}] {Message:lj} <s:{SourceContext}>{NewLine}{Exception}"))
+                    .WriteTo.Async(a => a.MSSqlServer(connectionString: builder.Configuration.GetConnectionString("MemeMakerConnection"), tableName:"Logs", autoCreateSqlTable: true, restrictedToMinimumLevel:Serilog.Events.LogEventLevel.Warning))
+                    .WriteTo.Async(a => a.File(restrictedToMinimumLevel: Serilog.Events.LogEventLevel.Information, flushToDiskInterval: new TimeSpan(0,0,10), path:builder.Configuration["DiskPaths:LogFilePath"], rollOnFileSizeLimit:true, fileSizeLimitBytes: 50100100, rollingInterval: RollingInterval.Day, retainedFileCountLimit: 5, buffered: false, outputTemplate: "{Timestamp:dd-MMM-yyyy HH:mm:ss.fff zzz} {Level:us} tid={ThreadId} {Message:lj}{NewLine}"))
+                    .CreateLogger();
+
+builder.Host.UseSerilog();
 
 // Add services to the container.
 
@@ -81,4 +94,17 @@ app.MapControllers();
 
 //app.UseDeveloperExceptionPage();
 
-app.Run();
+try
+{
+    Log.Warning("API is starting...");
+    app.Run();
+}
+catch(Exception e)
+{
+    Log.Fatal(e, "Exception during startup or execution of API");
+}
+finally
+{
+    Log.Warning("API is closing...");
+    Log.CloseAndFlush();
+}

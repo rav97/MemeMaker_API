@@ -1,5 +1,6 @@
 ﻿using Application.Managers.Interfaces;
 using Microsoft.AspNetCore.Mvc;
+using Serilog;
 using WebAPI.Attributes;
 
 namespace WebAPI.Controllers
@@ -49,7 +50,7 @@ namespace WebAPI.Controllers
             }
             catch(Exception e)
             {
-                Console.WriteLine(e.Message);
+                Log.Error(e, $"Exception in {nameof(GetApiKey)}()");
                 return StatusCode(500, false);
             }
         }
@@ -66,7 +67,7 @@ namespace WebAPI.Controllers
         [ProducesResponseType(typeof(bool), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(string), StatusCodes.Status400BadRequest)]
         [ProducesResponseType(typeof(bool), StatusCodes.Status500InternalServerError)]
-        public async Task<IActionResult> CheckApiKey(string key)
+        public async Task<IActionResult> CheckApiKey([SqlInjectionFilter]string key)
         {
             try
             {
@@ -78,7 +79,7 @@ namespace WebAPI.Controllers
             }
             catch (Exception e)
             {
-                Console.WriteLine(e.Message);
+                Log.Error(e, $"Exception in {nameof(CheckApiKey)}() for key = {key}");
                 return StatusCode(500, false);
             }
         }
