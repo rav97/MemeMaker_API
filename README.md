@@ -10,6 +10,8 @@ An ASP.NET Core Web API created for [WPF Meme Maker](https://github.com/rav97/WP
 - Manage Templates
 - Manage Memes
 - Swagger documentation
+- Logging service
+- SQL Injection protection (partial)
 
 ## Tech and tools
 
