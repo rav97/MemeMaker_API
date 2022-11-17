@@ -1,6 +1,7 @@
 ﻿using Application.DTO;
 using Application.Managers.Interfaces;
 using Microsoft.AspNetCore.Mvc;
+using Serilog;
 using WebAPI.Attributes;
 
 namespace WebAPI.Controllers
@@ -44,7 +45,7 @@ namespace WebAPI.Controllers
             }
             catch (Exception e)
             {
-                Console.WriteLine(e.Message);
+                Log.Error(e, $"Exception in {nameof(GetTemplate)}() id = {id}");
                 return StatusCode(500, false);
             }
         }
@@ -70,7 +71,7 @@ namespace WebAPI.Controllers
             }
             catch (Exception e)
             {
-                Console.WriteLine(e.Message);
+                Log.Error(e, $"Exception in {nameof(GetPopularTemplates)}() limit = {limit}");
                 return StatusCode(500, false);
             }
         }
@@ -87,7 +88,7 @@ namespace WebAPI.Controllers
         [ProducesResponseType(typeof(IEnumerable<TemplateDto>), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(bool), StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(typeof(bool), StatusCodes.Status500InternalServerError)]
-        public IActionResult GetTemplatesWithName(string phrase)
+        public IActionResult GetTemplatesWithName([SqlInjectionFilter]string phrase)
         {
             try
             {
@@ -96,7 +97,7 @@ namespace WebAPI.Controllers
             }
             catch (Exception e)
             {
-                Console.WriteLine(e.Message);
+                Log.Error(e, $"Exception in {nameof(GetTemplatesWithName)}() phrase = {phrase}");
                 return StatusCode(500, false);
             }
         }
@@ -117,7 +118,7 @@ namespace WebAPI.Controllers
         [ProducesResponseType(typeof(bool), StatusCodes.Status400BadRequest)]
         [ProducesResponseType(typeof(bool), StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(typeof(bool), StatusCodes.Status500InternalServerError)]
-        public IActionResult AddTemplate(string templateName, IFormFile image)
+        public IActionResult AddTemplate([SqlInjectionFilter]string templateName, IFormFile image)
         {
             try
             {
@@ -133,7 +134,7 @@ namespace WebAPI.Controllers
             }
             catch (Exception e)
             {
-                Console.WriteLine(e.Message);
+                Log.Error(e, $"Exception in {nameof(AddTemplate)}() templateName = {templateName}");
                 return StatusCode(500, false);
             }
         }
@@ -161,7 +162,7 @@ namespace WebAPI.Controllers
             }
             catch (Exception e)
             {
-                Console.WriteLine(e.Message);
+                Log.Error(e, $"Exception in {nameof(SaveMemeUsage)}() templateId = {templateId}");
                 return StatusCode(500, false);
             }
         }
